@@ -89,6 +89,16 @@ type IAction interface {
 	Execute(params map[string]string, input map[string]string) (map[string]string, error)
 }
 
+type IDirectoryService interface {
+	Search(query string) ([]DirectoryUser, error)
+}
+
+type DirectoryUser struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 type ITriggerEvent interface {
 	WorkflowID() string
 	Input() map[string]string

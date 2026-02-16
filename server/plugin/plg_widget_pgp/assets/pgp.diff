@@ -12,7 +12,7 @@ index 1227d426..b82330aa 100644
 @@ -65,1 +65,3 @@ export default function(render, { getFilename, getDownloadUrl, mime, hasMenubar
              let src = `${getDownloadUrl()}&size=${window.innerWidth}`;
 +            const m = await import("/plg_widget_pgp/pgp.js");
-+            if (m.isPGPFile(getFilename())) src = await m.decode(src);
++            if (m.isPGP(getFilename())) src = await m.decode(src);
 diff --git a/public/assets/pages/viewerpage/model_files.js b/public/assets/pages/viewerpage/model_files.js
 index 743914ab..4f20546d 100644
 --- a/public/assets/pages/viewerpage/model_files.js
@@ -22,9 +22,9 @@ index 743914ab..4f20546d 100644
 -    url: forwardURLParams(url, ["share"]),
 -    method: "GET",
 -}).pipe(
-+const { isPGPFile, decode, encode } = await import(location.origin + "/plg_widget_pgp/pgp.js");
++const { isPGP, decode, encode } = await import(location.origin + "/plg_widget_pgp/pgp.js");
 +export const cat = (url) => rxjs.of(forwardURLParams(url, ["share"])).pipe(
-+    rxjs.mergeMap((url) => isPGPFile(getCurrentPath()) ? decode(url) : rxjs.of(url)),
++    rxjs.mergeMap((url) => isPGP(getCurrentPath()) ? decode(url) : rxjs.of(url)),
 +    rxjs.mergeMap((url) => ajax({ url, method: "GET" })),
 @@ -29,5 +29,3 @@ export const cat = (url) => ajax({
 -export const save = (content) => ajax({
@@ -32,6 +32,6 @@ index 743914ab..4f20546d 100644
 -    method: "POST",
 -    body: content,
 -});
-+export const save = (content) => (isPGPFile(getCurrentPath()) ? rxjs.from(encode(content)) : rxjs.of(content)).pipe(
++export const save = (content) => (isPGP(getCurrentPath()) ? rxjs.from(encode(content)) : rxjs.of(content)).pipe(
 +    rxjs.mergeMap((body) => ajax({ body, method: "POST", url: forwardURLParams("api/files/cat?path=" + encodeURIComponent(getCurrentPath()), ["share"]) })),
 +);

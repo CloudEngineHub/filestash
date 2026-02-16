@@ -5,13 +5,16 @@ import { qs, safe } from "../../lib/dom.js";
 
 import { getFilename } from "./common.js";
 
-import * as openpgp from "https://unpkg.com/openpgp@6.3.0/dist/openpgp.min.mjs";
+const openpgp = (window.crypto && window.crypto.subtle) ? await import("https://unpkg.com/openpgp@6.3.0/dist/openpgp.min.mjs") : null;
 
 let KEY = null;
 onDestroy(() => KEY = null);
 
-export function isPGPFile(path) {
-    return new RegExp(".gpg$").test(path);
+export function isPGP(path) {
+    if (!openpgp) return false;
+    else if (new RegExp(".gpg$").test(path)) return true;
+    else if (new RegExp(".pgp$").test(path)) return true;
+    return false;
 }
 
 export async function decode(src) {

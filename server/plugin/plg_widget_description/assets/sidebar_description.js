@@ -33,14 +33,14 @@ export default async function(render, { path }) {
 }
 
 const getDescription = (path) => ajax({
-    url: forwardURLParams("api/description?path=" + encodeURIComponent(path), ["share"]),
+    url: forwardURLParams("api/plg_widget_description/description?path=" + encodeURIComponent(path), ["share"]),
     responseType: "json"
 }).pipe(
     rxjs.map(({ responseJSON }) => responseJSON.result || { path, text: "" }),
 );
 
 const updateDescription = ({ path, ...body }) => ajax({
-    url: forwardURLParams("api/description?path=" + encodeURIComponent(path), ["share"]),
+    url: forwardURLParams("api/plg_widget_description/description?path=" + encodeURIComponent(path), ["share"]),
     method: "PUT",
     body,
 });

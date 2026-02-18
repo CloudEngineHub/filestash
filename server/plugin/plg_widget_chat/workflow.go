@@ -6,6 +6,7 @@ import (
 
 	. "github.com/mickael-kerjean/filestash/server/common"
 	. "github.com/mickael-kerjean/filestash/server/pkg/workflow/trigger"
+	. "github.com/mickael-kerjean/filestash/server/pkg/workflow/model"
 )
 
 var (
@@ -60,9 +61,10 @@ func processMention(params map[string]string) {
 	}
 }
 
-func mentionCallback(out map[string]string) func(map[string]string) (map[string]string, bool) {
-	return func(params map[string]string) (map[string]string, bool) {
-		if params["path"] != "" && !GlobMatch(params["path"], out["path"]) {
+func mentionCallback(out map[string]string) func(Workflow) (map[string]string, bool) {
+	return func(w Workflow) (map[string]string, bool) {
+		path := w.Trigger.Params["path"]
+		if path != "" && !GlobMatch(path, out["path"]) {
 			return out, false
 		}
 		return out, true

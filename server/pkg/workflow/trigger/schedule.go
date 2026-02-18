@@ -6,6 +6,7 @@ import (
 	"time"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
+	. "github.com/mickael-kerjean/filestash/server/pkg/workflow/model"
 )
 
 var (
@@ -52,8 +53,8 @@ func (this *ScheduleTrigger) Init() (chan ITriggerEvent, error) {
 	return cron_event, nil
 }
 
-func scheduleCallback(params map[string]string) (map[string]string, bool) {
-	expr := params["cron"]
+func scheduleCallback(workflow Workflow) (map[string]string, bool) {
+	expr := workflow.Trigger.Params["cron"]
 	if v, ok := map[string]string{
 		"@yearly":  "0 0 1 1 *",
 		"@monthly": "0 0 1 * *",

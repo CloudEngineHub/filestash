@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
+	. "github.com/mickael-kerjean/filestash/server/pkg/workflow/model"
 
 	"github.com/gorilla/mux"
 )
@@ -18,8 +19,8 @@ func init() {
 	Hooks.Register.WorkflowTrigger(&WebhookTrigger{})
 }
 
-func webhookCallback(r *http.Request) func(params map[string]string) (map[string]string, bool) {
-	return func(params map[string]string) (map[string]string, bool) {
+func webhookCallback(r *http.Request, id string) func(w Workflow) (map[string]string, bool) {
+	return func(w Workflow) (map[string]string, bool) {
 		headers := map[string]any{}
 		for k, v := range r.Header {
 			headers[k] = strings.Join(v, ", ")
@@ -28,11 +29,15 @@ func webhookCallback(r *http.Request) func(params map[string]string) (map[string
 		for k, v := range r.URL.Query() {
 			query[k] = strings.Join(v, ", ")
 		}
-		return map[string]string{
+		out := map[string]string{
 			"method":  r.Method,
 			"headers": toJSON(headers),
 			"query":   toJSON(query),
-		}, true
+		}
+		if id == "" {
+			return out, true
+		}
+		return out, id == w.ID
 	}
 }
 
@@ -60,7 +65,7 @@ func (this *WebhookTrigger) Manifest() WorkflowSpecs {
 func (this *WebhookTrigger) Init() (chan ITriggerEvent, error) {
 	Hooks.Register.HttpEndpoint(func(r *mux.Router) error {
 		r.HandleFunc(WithBase("/api/workflow/webhook"), func(w http.ResponseWriter, r *http.Request) {
-			if err := TriggerEvents(webhook_event, webhook_name, webhookCallback(r)); err != nil {
+			if err := TriggerEvents(webhook_event, webhook_name, webhookCallback(r, r.URL.Query().Get("id"))); err != nil {
 				SendErrorResult(w, err)
 				return
 			}

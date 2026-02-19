@@ -121,6 +121,7 @@ func FileLs(ctx *App, res http.ResponseWriter, req *http.Request) {
 		if err = auth.Cat(ctx, path); err != nil {
 			perms.CanSee = NewBool(false)
 		}
+		ctx.Context = context.WithValue(ctx.Context, "AUDIT", nil)
 	}
 	if model.CanEdit(ctx) == false {
 		perms.CanCreateFile = NewBool(false)

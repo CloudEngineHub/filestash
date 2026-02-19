@@ -44,6 +44,11 @@ func (this hookAuthorisation) Mv(ctx *App, from string, to string) error {
 }
 
 func (this hookAuthorisation) Save(ctx *App, path string) error {
+	processFileAction(ctx, map[string]string{"event": "stat", "path": path})
+	return nil
+}
+
+func (this hookAuthorisation) Stat(ctx *App, path string) error {
 	processFileAction(ctx, map[string]string{"event": "save", "path": path})
 	return nil
 }
@@ -65,7 +70,7 @@ func (this *FileEventTrigger) Manifest() WorkflowSpecs {
 				{
 					Name:       "event",
 					Type:       "text",
-					Datalist:   []string{"ls", "cat", "mkdir", "mv", "rm", "touch", "save"},
+					Datalist:   []string{"ls", "cat", "mkdir", "mv", "rm", "touch", "save", "stat"},
 					MultiValue: true,
 				},
 				{

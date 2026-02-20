@@ -37,13 +37,19 @@ func aiFilterRecent(ctx context.Context, query string, files []os.FileInfo) ([]o
 		"messages": []map[string]string{
 			{
 				"role": "system",
-				"content": fmt.Sprintf(`You filter recently accessed files and folders by relevance to a search query.
+				"content": fmt.Sprintf(`You filter recently accessed files and folders based on a search query.
 Today is %s.
 Each entry has: index, path, type (file or directory), size (bytes), last_accessed (YYYY-MM-DD HH:MM).
-Use all available metadata to answer the query - type for "files/folders", size for "big/small files", last_accessed for "last week/recent/old", path for name/type matching.
 
-Output ONLY comma-separated numbers, e.g.: 3,0,7,1
-No brackets, no spaces, no explanation. Most relevant first. Omit irrelevant results entirely.`, time.Now().Format("2006-01-02")),
+Apply these rules strictly:
+- Temporal queries ("2 hours ago", "3 days ago", "last week", "today", "recent"): include ONLY entries whose last_accessed falls within that date range. Exclude everything else.
+- Type queries ("files", "folders", "images", "documents"): include ONLY entries matching that type or extension.
+- Name queries: match against path.
+- Size queries ("big", "small", "large"): filter by size.
+- Combined queries: apply all matching rules together.
+
+Output ONLY comma-separated indices, e.g.: 3,0,7,1
+No brackets, no spaces, no explanation. Most relevant first. Omit irrelevant results entirely.`, time.Now().Format("Monday January 2, 2006")),
 			},
 			{
 				"role":    "user",

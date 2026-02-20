@@ -104,13 +104,15 @@ func HealthHandler(ctx *App, res http.ResponseWriter, req *http.Request) {
 			"", "    ",
 		)
 		status := "error"
-		if len(cgsk) == 16 {
-			status = "transcient"
-			res.WriteHeader(http.StatusOK)
+		if os.Getenv("ADMIN_PASSWORD") != "" && len(caa) == 0 {
+			res.WriteHeader(http.StatusServiceUnavailable)
+			Log.Error("ctrl::report::healthz message=corrupted_config check=3A config=%s", m)
+		} else if len(cgsk) != 16 {
+			res.WriteHeader(http.StatusServiceUnavailable)
+			Log.Error("ctrl::report::healthz message=corrupted_config check=3B config=%s", m)
 		} else {
-			res.WriteHeader(http.StatusInternalServerError)
-			c, _ := json.Marshal(&Config)
-			Log.Debug("ctrl::report::healthz message=corrupted_config config=%s", string(c))
+			res.WriteHeader(http.StatusOK)
+			status = "transcient"
 		}
 		res.Write([]byte(fmt.Sprintf(
 			`{"status": "%s", "reason": "configuration_error", "debug": %s}`,

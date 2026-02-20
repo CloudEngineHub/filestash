@@ -66,7 +66,7 @@ func init() {
 			if recentPathAdd != "" {
 				var size int64 = 0
 				if b, err := ctx.Backend.Init(ctx.Session, ctx); err == nil {
-					if finfo, err := b.Stat(recentPathAdd); err == nil {
+					if finfo, err := b.Stat(JoinPath(ctx.Session["path"], recentPathAdd)); err == nil {
 						size = finfo.Size()
 					}
 				}

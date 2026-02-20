@@ -25,7 +25,11 @@ func aiFilterRecent(ctx context.Context, query string, files []os.FileInfo) ([]o
 	for i, f := range files {
 		file := f.(File)
 		accessed := time.UnixMilli(file.FTime).Format("2006-01-02 15:04")
-		entries = append(entries, fmt.Sprintf("%d: path=%s size=%d last_accessed=%s", i, file.FPath, file.FSize, accessed))
+		entryType := "file"
+		if strings.HasSuffix(file.FPath, "/") {
+			entryType = "directory"
+		}
+		entries = append(entries, fmt.Sprintf("%d: path=%s type=%s size=%d last_accessed=%s", i, file.FPath, entryType, file.FSize, accessed))
 	}
 
 	body, err := json.Marshal(map[string]any{
@@ -33,10 +37,10 @@ func aiFilterRecent(ctx context.Context, query string, files []os.FileInfo) ([]o
 		"messages": []map[string]string{
 			{
 				"role": "system",
-				"content": fmt.Sprintf(`You filter recently accessed files by relevance to a search query.
+				"content": fmt.Sprintf(`You filter recently accessed files and folders by relevance to a search query.
 Today is %s.
-Each entry has: index, path, size (bytes), last_accessed (YYYY-MM-DD HH:MM).
-Use all available metadata to answer the query - size for "big/small files", last_accessed for "last week/recent/old", path for name/type matching.
+Each entry has: index, path, type (file or directory), size (bytes), last_accessed (YYYY-MM-DD HH:MM).
+Use all available metadata to answer the query - type for "files/folders", size for "big/small files", last_accessed for "last week/recent/old", path for name/type matching.
 
 Output ONLY comma-separated numbers, e.g.: 3,0,7,1
 No brackets, no spaces, no explanation. Most relevant first. Omit irrelevant results entirely.`, time.Now().Format("2006-01-02")),

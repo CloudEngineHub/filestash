@@ -31,6 +31,10 @@ func (this FileHook) Cat(ctx *App, path string) error {
 	return nil
 }
 
+func (this FileHook) Stat(ctx *App, path string) error {
+	return nil
+}
+
 func (this FileHook) Mkdir(ctx *App, path string) error {
 	if this.record(ctx) {
 		go func() {

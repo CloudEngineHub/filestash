@@ -13,7 +13,7 @@ import (
 var Config Configuration
 
 type Configuration struct {
-	mu    sync.Mutex
+	mu    sync.RWMutex
 	cache sync.Map
 
 	Form  []Form
@@ -258,12 +258,14 @@ func (this *Configuration) Initialise() {
 }
 
 func (this *Configuration) Save() {
+	this.mu.RLock()
 	formBytes, err := formToJSON(Form{Form: this.Form}, func(el FormElement) any { return el.Value })
+	conn, _ := json.Marshal(this.Conn)
+	this.mu.RUnlock()
 	if err != nil {
 		Log.Error("config::save marshal %s", err.Error())
 		return
 	}
-	conn, _ := json.Marshal(this.Conn)
 	var buf bytes.Buffer
 	buf.WriteByte('{')
 	inner := formBytes[1 : len(formBytes)-1]
@@ -422,12 +424,11 @@ func (this *ConfigElement) Set(value interface{}) *ConfigElement {
 	if this.currentElement == nil {
 		return this
 	}
-
-	this.cfg.cache.Clear()
 	this.cfg.mu.Lock()
 	changed := this.currentElement.Value != value
 	if changed {
 		this.currentElement.Value = value
+		this.cfg.cache.Clear()
 	}
 	this.cfg.mu.Unlock()
 	if changed {
@@ -469,11 +470,13 @@ func (this *ConfigElement) Interface() interface{} {
 	if this.currentElement == nil {
 		return nil
 	}
-	val := this.currentElement.Value
-	if val == nil {
-		val = this.currentElement.Default
+	this.cfg.mu.RLock()
+	el := *this.currentElement
+	this.cfg.mu.RUnlock()
+	if el.Value == nil {
+		return el.Default
 	}
-	return val
+	return el.Value
 }
 
 func (this *Configuration) MarshalJSON() ([]byte, error) {

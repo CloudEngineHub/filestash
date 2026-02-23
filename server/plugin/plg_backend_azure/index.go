@@ -36,9 +36,7 @@ func (this *AzureBlob) Init(params map[string]string, app *App) (IBackend, error
 		Log.Debug("plg_backend_azure::new_client_error %s", err.Error())
 		return nil, ErrAuthenticationFailed
 	}
-	this.ctx = app.Context
-	this.client = client
-	return this, nil
+	return &AzureBlob{client, app.Context}, nil
 }
 
 func (this *AzureBlob) LoginForm() Form {

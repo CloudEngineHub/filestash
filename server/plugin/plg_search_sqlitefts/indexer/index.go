@@ -45,8 +45,11 @@ type sqliteIndex struct {
 }
 
 func (this *sqliteIndex) Init() error {
-	path := GetAbsolutePath(FTS_PATH, "fts_"+this.id+".sql")
-	db, err := sql.Open("sqlite3", path+"?_journal_mode=wal")
+	path := "fts_"+this.id+".sql"
+	if this.id == "" {
+		path = "fts.sql"
+	}
+	db, err := sql.Open("sqlite3", GetAbsolutePath(FTS_PATH, path)+"?_journal_mode=wal")
 	if err != nil {
 		Log.Warning("search::init can't open database (%v)", err)
 		return toErr(err)

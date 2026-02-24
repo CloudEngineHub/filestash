@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
+	. "github.com/mickael-kerjean/filestash/server/plugin/plg_search_sqlitefts/config"
 )
 
 /*
@@ -135,7 +136,8 @@ func (this *daemonState) HintLs(app *App, path string) {
 		Log.Warning("plg_search_sqlitefs::init message=cannot_create_crawler err=%s", err.Error())
 		return
 	}
-	s, err := NewCrawler(id, crawlerBackend)
+	app.Backend = crawlerBackend
+	s, err := NewCrawler(app)
 	if err != nil {
 		Log.Warning("plg_search_sqlitefs::init message=cannot_create_crawler err=%s", err.Error())
 		return

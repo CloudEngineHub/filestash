@@ -39,12 +39,12 @@ func (this StepIndexer) Manifest() WorkflowSpecs {
 func (this StepIndexer) Execute(params map[string]string, input map[string]string) (map[string]string, error) {
 	str, err := DecryptString(SECRET_KEY_DERIVATE_FOR_USER, params["token"])
 	if err != nil {
-		Log.Warning("plg_search_sqlitefs::workflow message=invalid_token err=%s", err.Error())
+		Log.Warning("plg_search_sqlitefts::workflow message=invalid_token err=%s", err.Error())
 		return input, err
 	}
 	session := map[string]string{}
 	if err = json.Unmarshal([]byte(str), &session); err != nil {
-		Log.Warning("plg_search_sqlitefs::workflow message=invalid_session err=%s", err.Error())
+		Log.Warning("plg_search_sqlitefts::workflow message=invalid_session err=%s", err.Error())
 		return input, err
 	}
 	id := GenerateID(session)
@@ -58,7 +58,7 @@ func (this StepIndexer) Execute(params map[string]string, input map[string]strin
 	}
 	backend, err := NewBackend(app, app.Session)
 	if err != nil {
-		Log.Warning("plg_search_sqlitefs::workflow message=cannot_create_backend err=%s", err.Error())
+		Log.Warning("plg_search_sqlitefts::workflow message=cannot_create_backend err=%s", err.Error())
 		return input, err
 	}
 	app.Backend = backend
@@ -67,7 +67,7 @@ func (this StepIndexer) Execute(params map[string]string, input map[string]strin
 
 	tr, err := crwlr.State.Change()
 	if err != nil {
-		Log.Warning("plg_search_sqlitefs::workflow message=cannot_begin_tx err=%s", err.Error())
+		Log.Warning("plg_search_sqlitefts::workflow message=cannot_begin_tx err=%s", err.Error())
 		return input, err
 	}
 
@@ -93,7 +93,7 @@ func (this StepIndexer) Execute(params map[string]string, input map[string]strin
 
 				files, err := crwlr.Backend.Ls(doc.Path)
 				if err != nil {
-					Log.Warning("plg_search_sqlitefs::workflow message=ls_error path=%s err=%s", doc.Path, err.Error())
+					Log.Warning("plg_search_sqlitefts::workflow message=ls_error path=%s err=%s", doc.Path, err.Error())
 				}
 
 				cond.L.Lock()
@@ -108,7 +108,7 @@ func (this StepIndexer) Execute(params map[string]string, input map[string]strin
 	}
 	wg.Wait()
 	if err = tr.Commit(); err != nil {
-		Log.Warning("plg_search_sqlitefs::workflow message=commit_error err=%s", err.Error())
+		Log.Warning("plg_search_sqlitefts::workflow message=commit_error err=%s", err.Error())
 	}
 	return input, nil
 }

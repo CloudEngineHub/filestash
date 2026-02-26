@@ -31,9 +31,9 @@ func (this *ScheduleTrigger) Manifest() WorkflowSpecs {
 				{
 					Name:        "cron",
 					Type:        "text",
-					Placeholder: "Default: @hourly",
-					Value:       "0 0 * * *",
-					Datalist:    []string{"@hourly", "@daily", "@weekly", "@monthly", "@yearly"},
+					Placeholder: "Default: @daily",
+					Default:     "@daily",
+					Datalist:    []string{"@always", "@hourly", "@daily", "@weekly", "@monthly", "@yearly"},
 				},
 			},
 		},
@@ -61,6 +61,7 @@ func scheduleCallback(workflow Workflow) (map[string]string, bool) {
 		"@weekly":  "0 0 * * 0",
 		"@daily":   "0 0 * * *",
 		"@hourly":  "0 * * * *",
+		"@always":  "* * * * *",
 	}[expr]; ok {
 		expr = v
 	}

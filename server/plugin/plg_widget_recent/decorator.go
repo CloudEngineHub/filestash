@@ -14,7 +14,7 @@ type Decorator struct {
 }
 
 func NewRecentDecorator(app *App) Decorator {
-	return Decorator{app.Backend, app.Session["path"]}
+	return Decorator{app.Backend, EnforceDirectory(app.Session["path"])}
 }
 
 func (this Decorator) Ls(path string) ([]os.FileInfo, error) {

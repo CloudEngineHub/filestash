@@ -26,8 +26,7 @@ func updateFile(path string, backend IBackend, tx indexer.Manager) error {
 		return nil
 	}
 	defer convertedReader.Close()
-	if err = tx.FileContentUpdate(path, reader); err != nil {
-		Log.Warning("search::index index_update (%v)", err)
+	if err = tx.FileContentUpdate(path, convertedReader); err != nil {
 		return err
 	}
 	return nil

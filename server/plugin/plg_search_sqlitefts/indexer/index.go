@@ -23,7 +23,7 @@ type Manager interface {
 	FindBefore(time time.Time) (RowMapper, error)
 	FindNew(maxSize int, toOmit []string) (RowMapper, error)
 
-	FileCreate(f fs.FileInfo, parent string) error
+	FileCreate(f fs.FileInfo, parent string, withUpsert bool) error
 	FileContentUpdate(path string, f io.ReadCloser) error
 	FileMetaUpdate(path string, f fs.FileInfo) error
 
@@ -222,34 +222,23 @@ func (this sqliteQueries) FileContentUpdate(path string, reader io.ReadCloser) e
 	return nil
 }
 
-func (this sqliteQueries) FileCreate(f fs.FileInfo, parentPath string) (err error) {
+func (this sqliteQueries) FileCreate(f fs.FileInfo, parentPath string, withUpsert bool) (err error) {
 	name := f.Name()
 	path := filepath.Join(parentPath, f.Name())
 	if f.IsDir() {
-		_, err = this.tx.Exec(
-			"INSERT INTO file(path, parent, filename, type, size, modTime, indexTime) "+
-				"VALUES(?, ?, ?, ?, ?, ?, ?)",
-			path+"/",
-			parentPath,
-			name,
-			"directory",
-			f.Size(),
-			f.ModTime(),
-			time.Now(),
-		)
+		sql := "INSERT INTO file(path, parent, filename, type, size, modTime, indexTime) VALUES(?, ?, ?, ?, ?, ?, ?)"
+		if withUpsert {
+			sql += " ON CONFLICT(path) DO UPDATE SET size=excluded.size, modTime=excluded.modTime" +
+				" WHERE excluded.modTime != file.modTime OR excluded.size != file.size"
+		}
+		_, err = this.tx.Exec(sql, path+"/", parentPath, name, "directory", f.Size(), f.ModTime(), time.Now())
 	} else {
-		_, err = this.tx.Exec(
-			"INSERT INTO file(path, parent, filename, type, size, modTime, indexTime, filetype) "+
-				"VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-			path,
-			parentPath,
-			name,
-			"file",
-			f.Size(),
-			f.ModTime(),
-			nil,
-			strings.TrimPrefix(filepath.Ext(name), "."),
-		)
+		sql := "INSERT INTO file(path, parent, filename, type, size, modTime, indexTime, filetype) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+		if withUpsert {
+			sql += " ON CONFLICT(path) DO UPDATE SET size=excluded.size, modTime=excluded.modTime, indexTime=NULL" +
+				" WHERE excluded.modTime != file.modTime OR excluded.size != file.size"
+		}
+		_, err = this.tx.Exec(sql, path, parentPath, name, "file", f.Size(), f.ModTime(), nil, strings.TrimPrefix(filepath.Ext(name), "."))
 	}
 	return toErr(err)
 }

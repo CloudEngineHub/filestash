@@ -81,7 +81,7 @@ func updateFolder(path string, backend IBackend, tx indexer.Manager) error {
 			}
 		}
 		if currFilenameAlreadyExist == false {
-			dbInsert(path, currFiles[i], tx)
+			dbUpsert(path, currFiles[i], tx)
 		}
 	}
 	// 2. Find the content that was existing before but got removed
@@ -106,7 +106,11 @@ func updateFolder(path string, backend IBackend, tx indexer.Manager) error {
 }
 
 func dbInsert(parent string, f os.FileInfo, tx indexer.Manager) error {
-	return tx.FileCreate(f, parent)
+	return tx.FileCreate(f, parent, false)
+}
+
+func dbUpsert(parent string, f os.FileInfo, tx indexer.Manager) error {
+	return tx.FileCreate(f, parent, true)
 }
 
 func dbUpdate(parent string, f fs.FileInfo, tx indexer.Manager) error {

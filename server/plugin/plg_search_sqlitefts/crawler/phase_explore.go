@@ -82,7 +82,7 @@ func (this *Crawler) DiscoverPush(doc *Document, files []os.FileInfo, tx indexer
 				})
 			}
 		} else {
-			if err := dbInsert(doc.Path, f, tx); err != nil && err != indexer.ErrConstraint {
+			if err := dbUpsert(doc.Path, f, tx); err != nil {
 				return false
 			}
 		}

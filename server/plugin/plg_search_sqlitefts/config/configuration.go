@@ -143,8 +143,8 @@ var INDEXING_EXT = func() string {
 		f.Name = "indexer_ext"
 		f.Type = "text"
 		f.Description = "Extensions that will be handled by the full text search engine"
-		f.Placeholder = "Default: org,txt,docx,pdf,md,form"
-		f.Default = "org,txt,docx,pdf,md,form"
+		f.Placeholder = "Default: org,txt,docx,pdf,md,form,xlsx,pptx"
+		f.Default = "org,txt,docx,pdf,md,form,xlsx,pptx"
 		return f
 	}).String()
 }

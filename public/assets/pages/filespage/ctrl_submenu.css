@@ -23,7 +23,6 @@
     display: flex;
     justify-content: space-between;
     padding: 0 15px;
-    overflow-x: auto;
 }
 [is="component_submenu"] .component_submenu::-webkit-scrollbar {
     display: none;

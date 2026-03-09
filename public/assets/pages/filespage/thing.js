@@ -6,7 +6,7 @@ import { get as getConfig } from "../../model/config.js";
 
 import { extractPath, isDir, isNativeFileUpload } from "./helper.js";
 import { files$ } from "./ctrl_filesystem.js";
-import { addSelection, isSelected, clearSelection } from "./state_selection.js";
+import { addSelection, isSelected, clearSelection, expandSelection } from "./state_selection.js";
 
 import { mv as mv$ } from "./model_files.js";
 import { mv as mvVL, withVirtualLayer } from "./model_virtual_layer.js";
@@ -171,6 +171,7 @@ export function createThing({
         });
     };
     $thing.ondragstart = (e) => {
+        if (expandSelection().length > 0) return e.preventDefault();
         clearSelection();
         $thing.classList.add("hover");
         $checkbox.style.display = "none";

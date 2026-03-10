@@ -104,12 +104,12 @@ func (this Register) Static(www fs.FS, chroot string) {
  * - plg_started_http2 to create an HTTP2 server
  * - ...
  */
-var starter_process []func(*mux.Router)
+var starter_process func(*mux.Router)
 
 func (this Register) Starter(fn func(*mux.Router)) {
-	starter_process = append(starter_process, fn)
+	starter_process = fn
 }
-func (this Get) Starter() []func(*mux.Router) {
+func (this Get) Starter() func(*mux.Router) {
 	return starter_process
 }
 

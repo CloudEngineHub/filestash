@@ -35,10 +35,12 @@ func (this *Crawler) DiscoverPop() *Document {
 }
 
 func (this *Crawler) DiscoverPush(doc *Document, files []os.FileInfo, tx indexer.Manager) bool {
+	existing := make(map[string]bool, len(files))
 	excluded := SEARCH_EXCLUSION()
 	for i := range files {
 		f := files[i]
 		name := f.Name()
+		existing[name] = true
 		skip := false
 		for i := 0; i < len(excluded); i++ {
 			if name == excluded[i] || strings.Contains(doc.Path, excluded[i]) {
@@ -86,6 +88,16 @@ func (this *Crawler) DiscoverPush(doc *Document, files []os.FileInfo, tx indexer
 				return false
 			}
 		}
+	}
+	if rows, err := tx.FindParent(doc.Path); err == nil {
+		for rows.Next() {
+			if r, err := rows.Value(); err == nil {
+				if !existing[r.Name] {
+					tx.RemoveAll(r.Path)
+				}
+			}
+		}
+		rows.Close()
 	}
 	return true
 }

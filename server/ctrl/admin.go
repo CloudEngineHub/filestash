@@ -76,6 +76,10 @@ func AdminSessionAuthenticate(ctx *App, res http.ResponseWriter, req *http.Reque
 		MaxAge:   60 * 60, // valid for 1 hour
 		SameSite: http.SameSiteStrictMode,
 	})
+	if req.Header.Get("Accept") == "application/json" {
+		SendSuccessResult(res, map[string]string{"access_token": obfuscate})
+		return
+	}
 	SendSuccessResult(res, true)
 }
 

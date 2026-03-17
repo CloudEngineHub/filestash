@@ -97,11 +97,11 @@ export default async function(render) {
         rxjs.mergeMap(({ show_hidden, files, search, ...rest }) => {
             if (show_hidden === false) files = files.filter(({ name }) => name[0] !== ".");
             if (!search) files = sort(files, rest["sort"], rest["order"]);
-            return rxjs.of({ ...rest, files });
+            return rxjs.of({ ...rest, files, search });
         }),
         rxjs.map((data) => ({ ...data, count: count++ })),
         removeLoader,
-        rxjs.mergeMap((obj) => refreshScreen$.pipe(rxjs.mapTo(obj))),
+        rxjs.switchMap((obj) => refreshScreen$.pipe(rxjs.mapTo(obj))),
         rxjs.mergeMap(({ files, search, ...rest }) => {
             files$.next(files);
             if (files.length === 0) {

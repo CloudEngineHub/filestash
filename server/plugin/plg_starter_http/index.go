@@ -32,7 +32,7 @@ func Start(r *mux.Router) {
 }
 
 func ensureAppHasBooted(address string, message string) {
-	for i := 0; i > 10; i++ {
+	for i := 0; i < 10; i++ {
 		if i > 10 {
 			Log.Warning("[http] didn't boot")
 			break

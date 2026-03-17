@@ -303,6 +303,7 @@ func (this *Configuration) Export() interface{} {
 		Origin                  string            `json:"origin"`
 		Version                 string            `json:"version"`
 		EnableChromecast        bool              `json:"enable_chromecast"`
+		EnableSearch            bool              `json:"enable_search"`
 		EnableShare             bool              `json:"enable_share"`
 		EnableTags              bool              `json:"enable_tags"`
 	}{
@@ -350,8 +351,9 @@ func (this *Configuration) Export() interface{} {
 		}(),
 		Version:          BUILD_REF,
 		EnableChromecast: this.Get("features.protection.enable_chromecast").Bool(),
+		EnableSearch:     Hooks.Get.SearchEngine() != nil,
 		EnableShare:      this.Get("features.share.enable").Bool(),
-		EnableTags: Hooks.Get.Metadata() != nil,
+		EnableTags:       Hooks.Get.Metadata() != nil,
 	}
 }
 

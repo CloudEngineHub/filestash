@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	Hooks.Register.Starter(func(r *mux.Router) {
+	Hooks.Register.Starter(func(ctx context.Context, r *mux.Router) {
 		torPath := GetAbsolutePath(CERT_PATH, "tor")
 		os.MkdirAll(torPath, os.ModePerm)
 
@@ -38,6 +38,10 @@ func init() {
 		srv := &http.Server{
 			Handler: r,
 		}
+		go func() {
+			<-ctx.Done()
+			srv.Shutdown(context.Background())
+		}()
 		Log.Info("[tor] started http://%s.onion\n", onion.ID)
 		Config.Get("features.server.tor_url").Set("http://" + onion.ID + ".onion")
 		srv.Serve(onion)

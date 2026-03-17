@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/fs"
 	"net/http"
@@ -104,12 +105,12 @@ func (this Register) Static(www fs.FS, chroot string) {
  * - plg_started_http2 to create an HTTP2 server
  * - ...
  */
-var starter_process func(*mux.Router)
+var starter_process func(context.Context, *mux.Router)
 
-func (this Register) Starter(fn func(*mux.Router)) {
+func (this Register) Starter(fn func(context.Context, *mux.Router)) {
 	starter_process = fn
 }
-func (this Get) Starter() func(*mux.Router) {
+func (this Get) Starter() func(context.Context, *mux.Router) {
 	return starter_process
 }
 
@@ -262,6 +263,15 @@ func (this Register) Onload(fn func()) {
 }
 func (this Get) Onload() []func() {
 	return afterload
+}
+
+var onquit []func()
+
+func (this Register) OnQuit(fn func()) {
+	onquit = append(onquit, fn)
+}
+func (this Get) OnQuit() []func() {
+	return onquit
 }
 
 var configChange []func()

@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/gorilla/mux"
 	"github.com/mickael-kerjean/filestash"
 	"github.com/mickael-kerjean/filestash/server"
+	. "github.com/mickael-kerjean/filestash/server/common"
 	"github.com/mickael-kerjean/filestash/server/ctrl"
 	"github.com/mickael-kerjean/filestash/server/model"
-
-	. "github.com/mickael-kerjean/filestash/server/common"
 	_ "github.com/mickael-kerjean/filestash/server/pkg"
 	"github.com/mickael-kerjean/filestash/server/pkg/workflow"
 	_ "github.com/mickael-kerjean/filestash/server/plugin"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -40,7 +43,10 @@ func Run(router *mux.Router) {
 		server.DebugRoutes(router)
 	}
 	server.CatchAll(router)
-	Hooks.Get.Starter()(router)
+	Hooks.Get.Starter()(withSignal(), router)
+	for _, fn := range Hooks.Get.OnQuit() {
+		fn()
+	}
 }
 
 func check(err error, msg string) {
@@ -49,4 +55,15 @@ func check(err error, msg string) {
 	}
 	Log.Error(msg, err.Error())
 	os.Exit(1)
+}
+
+func withSignal() context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+		<-quit
+		cancel()
+	}()
+	return ctx
 }

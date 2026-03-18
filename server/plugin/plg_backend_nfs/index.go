@@ -378,14 +378,32 @@ func (this NfsShare) Touch(path string) error {
 
 func (this NfsShare) Save(path string, file io.Reader) error {
 	this.mu.Lock()
-	defer this.mu.Unlock()
 	w, err := this.v.OpenFile(path, 0644)
+	this.mu.Unlock()
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(w, file)
-	w.Close()
+	nw := &nfsWriteCloser{w, this.mu}
+	_, err = io.Copy(nw, file)
+	nw.Close()
 	return err
+}
+
+type nfsWriteCloser struct {
+	io.WriteCloser
+	mu *sync.Mutex
+}
+
+func (w *nfsWriteCloser) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.WriteCloser.Write(p)
+}
+
+func (w *nfsWriteCloser) Close() error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.WriteCloser.Close()
 }
 
 func (this NfsShare) Close() {

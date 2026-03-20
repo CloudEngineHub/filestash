@@ -170,6 +170,13 @@ export function createThing({
             files: (files$.value || []),
         });
     };
+    if (getConfig("open_mode") === "double_click") $thing.onclick = (e) => {
+        if (isSelected(n) && expandSelection().length === 1) return;
+        e.preventDefault();
+        e.stopPropagation();
+        clearSelection();
+        $checkbox.onclick(e);
+    };
     $thing.ondragstart = (e) => {
         if (expandSelection().length > 0) return e.preventDefault();
         clearSelection();

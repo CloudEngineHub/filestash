@@ -73,6 +73,7 @@ func NewConfiguration() Configuration {
 					FormElement{Name: "logout", Type: "text", Default: "", Description: "Redirection URL whenever user click on the logout button"},
 					FormElement{Name: "display_hidden", Type: "boolean", Default: false, Description: "Should files starting with a dot be visible by default?"},
 					FormElement{Name: "refresh_after_upload", Type: "boolean", Default: false, Description: "Refresh directory listing after upload"},
+					FormElement{Name: "open_mode", Type: "select", Default: "single_click", Opts: []string{"single_click", "double_click"}, Description: "How files and folders are opened in the file browser"},
 					FormElement{Name: "upload_button", Type: "boolean", Default: false, Description: "Display the upload button on any device"},
 					FormElement{Name: "upload_pool_size", Type: "number", Default: 15, Description: "Maximum number of files upload in parallel. Default: 15"},
 					FormElement{Name: "upload_chunk_size", Type: "number", Default: 0, Description: "Size of Chunks for Uploads in MB."},
@@ -303,6 +304,7 @@ func (this *Configuration) Export() interface{} {
 		Origin                  string            `json:"origin"`
 		Version                 string            `json:"version"`
 		EnableChromecast        bool              `json:"enable_chromecast"`
+		OpenMode                string            `json:"open_mode"`
 		EnableSearch            bool              `json:"enable_search"`
 		EnableShare             bool              `json:"enable_share"`
 		EnableTags              bool              `json:"enable_tags"`
@@ -349,6 +351,7 @@ func (this *Configuration) Export() interface{} {
 			}
 			return scheme + host
 		}(),
+		OpenMode:         this.Get("general.open_mode").String(),
 		Version:          BUILD_REF,
 		EnableChromecast: this.Get("features.protection.enable_chromecast").Bool(),
 		EnableSearch:     Hooks.Get.SearchEngine() != nil,

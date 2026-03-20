@@ -103,7 +103,7 @@ async function _createListOfFiles(path, { basename = null, dirname = null }) {
         : r.files
             .filter(({ type, name }) => type === "directory" && name[0] !== ".")
             .map(({ name }) => name)
-            .sort();
+            .sort((a, b) => a.localeCompare(b));
 
     const $lis = document.createDocumentFragment();
     const $fragment = document.createDocumentFragment();

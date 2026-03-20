@@ -151,6 +151,7 @@
     width: 100%;
     position: relative;
     box-sizing: border-box;
+    min-width: 0;
 }
 .list > .component_thing.view-grid {
     border: 2px solid var(--border);

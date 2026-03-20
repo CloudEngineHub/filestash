@@ -229,7 +229,7 @@ func flattenJSON(prefix string, m map[string]any) map[string]any {
 			for nk, nv := range flattenJSON(key, val) {
 				out[nk] = nv
 			}
-		case []any, nil:
+		case []any:
 		default:
 			out[key] = val
 		}

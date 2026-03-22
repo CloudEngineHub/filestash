@@ -8,7 +8,7 @@ import (
 	"time"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
-	"github.com/mickael-kerjean/filestash/server/common/ssl"
+	"github.com/mickael-kerjean/filestash/server/pkg/ssl"
 
 	"github.com/gorilla/mux"
 )

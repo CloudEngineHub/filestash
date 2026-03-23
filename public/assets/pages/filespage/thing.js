@@ -170,8 +170,9 @@ export function createThing({
             files: (files$.value || []),
         });
     };
-    if (getConfig("open_mode") === "double_click") $thing.onclick = (e) => {
-        if (isSelected(n) && expandSelection().length === 1) return;
+    $thing.onclick = (e) => {
+        if (getConfig("open_mode") !== "double_click") return;
+        else if (isSelected(n) && expandSelection().length === 1) return;
         e.preventDefault();
         e.stopPropagation();
         clearSelection();

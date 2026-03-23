@@ -175,7 +175,7 @@ async function createAction({ action, actions }) {
     const subtitle = selected.subtitle && action.params && action.params[selected.subtitle] ? `(${safe(action.params[selected.subtitle])})` : "";
     const $action = createElement(`
         <div>
-            <div class="box">
+            <div class="box" draggable="true">
                 ${selected.icon}
                 <h3 class="ellipsis no-select">
                     &nbsp;${safe(selected.title)} <span>${safe(subtitle)}</span>
@@ -187,11 +187,21 @@ async function createAction({ action, actions }) {
             <hr>
         </div>
     `);
-    const $form = await createForm(
+    qs($action, `[data-bind="form"]`).appendChild(await createForm(
         mutateForm(selected.specs, action.params || {}),
         formTmpl(),
-    );
-    qs($action, `[data-bind="form"]`).appendChild($form);
+    ));
+    qs($action, ".box").ondragstart = (e) => {
+        $action.classList.add("dragging");
+        e.target.ondragend = () => $action.classList.remove("dragging");
+    };
+    $action.ondragover = (e) => {
+        const $dragging = $action.parentElement.querySelector(".dragging");
+        if (!$dragging) return;
+        const rect = $action.getBoundingClientRect();
+        if (e.clientY > rect.top + rect.height / 2) $action.parentElement.insertBefore($dragging, $action.nextSibling);
+        else $action.parentElement.insertBefore($dragging, $action);
+    };
     return $action;
 }
 

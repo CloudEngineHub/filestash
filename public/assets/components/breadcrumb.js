@@ -135,11 +135,13 @@ class ComponentBreadcrumb extends HTMLElement {
         if (previous !== null && path.indexOf(previous) >= 0) {
             const previousChunks = previous.split("/");
             const nToAnimate = pathChunks.length - previousChunks.length;
+            const tasks = [];
             for (let i=0; i<nToAnimate; i++) {
                 const n = pathChunks.length - i - 1;
                 const $chunk = assert.type(this.querySelector(`.component_path-element.n${n}`), HTMLElement);
-                await animate($chunk, { time: 100, keyframes: slideYIn(-5) });
+                tasks.push(animate($chunk, { time: 100, keyframes: slideYIn(-5) }));
             }
+            await Promise.all(tasks);
         }
     }
 

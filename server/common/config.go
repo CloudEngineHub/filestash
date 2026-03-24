@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/user"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -16,8 +17,8 @@ type Configuration struct {
 	mu    sync.RWMutex
 	cache sync.Map
 
-	Form  []Form
-	Conn  []map[string]any
+	Form []Form
+	Conn []map[string]any
 }
 
 type ConfigElement struct {
@@ -65,7 +66,7 @@ func NewConfiguration() Configuration {
 				Title: "general",
 				Elmnts: []FormElement{
 					FormElement{Name: "name", Type: "text", Default: APPNAME, Description: "Name as shown in the UI", Placeholder: "Default: \"" + APPNAME + "\""},
-					FormElement{Name: "port", Type: "number", Default: 8334, Description: "Port on which the application is available.", Placeholder: "Default: 8334"},
+					FormElement{Name: "port", Type: "number", Default: defaultValue(8334, "FILESTASH_PORT"), Description: "Port on which the application is available.", Placeholder: "Default: 8334"},
 					FormElement{Name: "host", Type: "text", Description: "The host people need to use to access this server", Placeholder: WhiteLabelText("Eg: \"demo.filestash.app\"", "Eg: \"files.yourcompany.com\"")},
 					FormElement{Name: "secret_key", Type: "password", Required: true, Pattern: "[a-zA-Z0-9]{16}", Description: "The key that's used to encrypt and decrypt content. Update this settings will invalidate existing user sessions and shared links, use with caution!"},
 					FormElement{Name: "force_ssl", Type: "boolean", Description: "Enable the web security mechanism called 'Strict Transport Security'"},
@@ -502,9 +503,16 @@ func (this *Configuration) MarshalJSON() ([]byte, error) {
 	})}.MarshalJSON()
 }
 
-func defaultValue(dval string, envName string) string {
+func defaultValue[T string | int](dval T, envName string) T {
 	if val := os.Getenv(envName); val != "" {
-		return val
+		switch any(dval).(type) {
+		case int:
+			if n, err := strconv.Atoi(val); err == nil {
+				return any(n).(T)
+			}
+		default:
+			return any(val).(T)
+		}
 	}
 	return dval
 }

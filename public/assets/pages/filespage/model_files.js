@@ -154,6 +154,13 @@ export const search = (term) => ajax({
     files: responseJSON.results,
 })));
 
+export const searchUrlParam = (term = null) => {
+    const url = new URL(location.href);
+    if (term) url.searchParams.set("q", term);
+    else url.searchParams.delete("q");
+    history.replaceState(history.state, "", url.toString());
+};
+
 class Hook {
     constructor() {
         this.list = [];

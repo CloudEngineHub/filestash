@@ -13,7 +13,7 @@ import { currentPath, sort, isMobile, isAlreadyFocused } from "./helper.js";
 import { createThing } from "./thing.js";
 import { clearSelection, addSelection, getSelection$, isSelected } from "./state_selection.js";
 import { getState$ } from "./state_config.js";
-import { ls, search } from "./model_files.js";
+import { ls, search, searchUrlParam } from "./model_files.js";
 import { getPermission } from "./model_acl.js";
 
 const ICONS = {
@@ -87,8 +87,10 @@ export default async function(render) {
                         })),
                     )),
                     removeLoader,
+                    rxjs.tap(() => searchUrlParam(state.search)),
                 );
             }
+            searchUrlParam(null);
             return rxjs.of({ files, ...state, ...rest });
         }))),
         rxjs.mergeMap((obj) => getPermission(path).pipe(

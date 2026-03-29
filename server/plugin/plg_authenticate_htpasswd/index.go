@@ -102,10 +102,9 @@ func (this Htpasswd) Callback(formData map[string]string, idpParams map[string]s
 			continue
 		} else if formData["user"] != pair[0] {
 			continue
-		} else if verifyPassword(
+		} else if VerifyPassword(
 			formData["password"],
 			strings.SplitN(pair[1], ":", 2)[0], // filter out unwanted fields from hash
-			formData["user"],
 		) == false {
 			continue
 		}
@@ -124,7 +123,7 @@ func (this Htpasswd) Callback(formData map[string]string, idpParams map[string]s
 	return nil, ErrAuthenticationFailed
 }
 
-func verifyPassword(password string, hash string, _user string) bool {
+func VerifyPassword(password string, hash string) bool {
 	if strings.HasPrefix(hash, "{SHA}") {
 		d := sha1.New()
 		d.Write([]byte(password))
@@ -137,7 +136,6 @@ func verifyPassword(password string, hash string, _user string) bool {
 	parts := strings.SplitN(hash, "$", 4)
 	if len(parts) != 4 {
 		if password == hash {
-			Log.Warning("plg_authenticate_htpasswd password for user '%s' isn't stored in a secure way, you should hash your password using something like 'openssl passwd -6'", _user)
 			return true
 		} else {
 			return false

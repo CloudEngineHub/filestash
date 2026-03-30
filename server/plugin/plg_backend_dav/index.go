@@ -376,7 +376,7 @@ func (this Dav) request(method string, url string, body io.Reader, fn func(req *
 	if fn != nil {
 		fn(req)
 	}
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	} else if res.StatusCode > 400 {

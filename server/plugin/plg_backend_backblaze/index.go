@@ -526,7 +526,7 @@ func (this Backblaze) request(method string, url string, body io.Reader, fn func
 		defer req.Body.Close()
 	}
 
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return res, err
 	}

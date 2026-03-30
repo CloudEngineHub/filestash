@@ -215,7 +215,7 @@ func (d Dropbox) request(method string, url string, body io.Reader, fn func(*htt
 	if req.Body != nil {
 		defer req.Body.Close()
 	}
-	return HTTPClient.Do(req)
+	return HTTPClient().Do(req)
 }
 
 func (d Dropbox) toReader(a interface{}) io.Reader {

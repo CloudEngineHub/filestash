@@ -16,9 +16,18 @@ func init() {
 	}
 }
 
-var HTTPClient = http.Client{
-	Timeout: 5 * time.Hour,
-	Transport: NewTransformedTransport(&http.Transport{
+type HTTPClientOption func(*http.Transport)
+
+func WithInsecure(t *http.Transport) {
+	t.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+}
+
+func WithoutTimeout(t *http.Transport) {
+	t.ResponseHeaderTimeout = 0
+}
+
+func HTTPClient(opts ...HTTPClientOption) *http.Client {
+	t := &http.Transport{
 		Dial: (&net.Dialer{
 			Timeout:   10 * time.Second,
 			KeepAlive: 10 * time.Second,
@@ -26,7 +35,14 @@ var HTTPClient = http.Client{
 		TLSHandshakeTimeout:   5 * time.Second,
 		IdleConnTimeout:       60 * time.Second,
 		ResponseHeaderTimeout: 60 * time.Second,
-	}),
+	}
+	for _, opt := range opts {
+		opt(t)
+	}
+	return &http.Client{
+		Timeout:   5 * time.Hour,
+		Transport: NewTransformedTransport(t),
+	}
 }
 
 var HTTP = http.Client{

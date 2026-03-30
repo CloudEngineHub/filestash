@@ -220,7 +220,7 @@ func (this *Perkeep) query(searchRequest any) (*SearchResponse, error) {
 	if err != nil {
 		return nil, NewError("Failed to create request: "+err.Error(), 500)
 	}
-	resp, err := HTTPClient.Do(req)
+	resp, err := HTTPClient().Do(req)
 	if err != nil {
 		return nil, NewError("Failed to query perkeep: "+err.Error(), 500)
 	}
@@ -249,7 +249,7 @@ func (this *Perkeep) describe(blobRef string) (*DescribeResponse, error) {
 	if err != nil {
 		return nil, NewError("Failed to create request: "+err.Error(), 500)
 	}
-	resp, err := HTTPClient.Do(req)
+	resp, err := HTTPClient().Do(req)
 	if err != nil {
 		return nil, NewError("Failed to describe perkeep: "+err.Error(), 500)
 	}

@@ -291,7 +291,7 @@ func (this *AzureBlob) Mv(from string, to string) error {
 	// CASE 2: Move a directory
 	pager := this.client.NewListBlobsFlatPager(apFrom.containerName, &container.ListBlobsFlatOptions{
 		Include: container.ListBlobsInclude{Snapshots: true, Versions: true},
-		Prefix: &apFrom.blobName,
+		Prefix:  &apFrom.blobName,
 	})
 	for pager.More() {
 		resp, err := pager.NextPage(this.ctx)

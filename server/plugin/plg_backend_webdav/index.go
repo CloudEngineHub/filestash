@@ -2,7 +2,6 @@ package plg_backend_webdav
 
 import (
 	"encoding/xml"
-	. "github.com/mickael-kerjean/filestash/server/common"
 	"io"
 	"net/http"
 	"net/url"
@@ -11,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	. "github.com/mickael-kerjean/filestash/server/common"
 )
 
 type WebDav struct {
@@ -35,10 +36,10 @@ func (w WebDav) Init(params map[string]string, app *App) (IBackend, error) {
 	}
 	backend := WebDav{
 		params: &WebDavParams{
-			strings.ReplaceAll(params["url"], "%{username}", url.PathEscape(params["username"])),
-			params["username"],
-			params["password"],
-			params["path"],
+			url:      strings.ReplaceAll(params["url"], "%{username}", url.PathEscape(params["username"])),
+			username: params["username"],
+			password: params["password"],
+			path:     params["path"],
 		},
 	}
 	return backend, nil
@@ -283,7 +284,7 @@ func (w WebDav) request(method string, url string, body io.Reader, fn func(req *
 	if fn != nil {
 		fn(req)
 	}
-	return HTTPClient.Do(req)
+	return HTTPClient().Do(req)
 }
 
 type WebDavResp struct {

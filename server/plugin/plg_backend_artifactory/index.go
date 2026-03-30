@@ -157,7 +157,7 @@ func (this ArtifactoryStorage) Ls(path string) ([]os.FileInfo, error) {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (this ArtifactoryStorage) Cat(path string) (io.ReadCloser, error) {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +231,7 @@ func (this ArtifactoryStorage) Cat(path string) (io.ReadCloser, error) {
 	}
 	req, err = http.NewRequest("GET", artifactoryResponse.DownloadLink, nil)
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err = HTTPClient.Do(req)
+	res, err = HTTPClient().Do(req)
 	return res.Body, err
 }
 
@@ -268,7 +268,7 @@ func (this ArtifactoryStorage) Mkdir(path string) error {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -306,7 +306,7 @@ func (this ArtifactoryStorage) Rm(path string) error {
 		return err
 	}
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -335,7 +335,7 @@ func (this ArtifactoryStorage) Mv(from, to string) error {
 		return err
 	}
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func (this ArtifactoryStorage) Save(path string, content io.Reader) error {
 		return err
 	}
 	req.Header.Add("Authorization", "Bearer "+this.token)
-	res, err := HTTPClient.Do(req)
+	res, err := HTTPClient().Do(req)
 	if err != nil {
 		return err
 	}

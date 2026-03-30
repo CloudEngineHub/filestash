@@ -26,12 +26,12 @@ func (this Filestash) request(method string, url string, body io.Reader) (io.Rea
 	req.Host = Config.Get("general.host").String()
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", this.Token))
 	req.Header.Set("X-Requested-With", "XmlHttpRequest")
-	t := HTTPClient.Transport.(*TransformedTransport).Orig.(*http.Transport).Clone()
-	t.ResponseHeaderTimeout = 0
-	resp, err := (&http.Client{
-		Timeout:   0,
-		Transport: NewTransformedTransport(t),
-	}).Do(req)
+
+	opts := []HTTPClientOption{WithoutTimeout}
+	if this.Insecure {
+		opts = append(opts, WithInsecure)
+	}
+	resp, err := HTTPClient(opts...).Do(req)
 	if err != nil {
 		return nil, nil, err
 	}

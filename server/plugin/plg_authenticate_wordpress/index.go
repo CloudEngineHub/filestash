@@ -88,7 +88,7 @@ func (this Wordpress) Callback(formData map[string]string, idpParams map[string]
 		return nil, NewError("Failed to create request: "+err.Error(), 500)
 	}
 	req.Header.Set("Content-Type", "text/xml")
-	resp, err := HTTPClient.Do(req)
+	resp, err := HTTPClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

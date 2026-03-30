@@ -1,5 +1,6 @@
 package sdk
 
 type Filestash struct {
-	Token string
+	Token    string
+	Insecure bool
 }

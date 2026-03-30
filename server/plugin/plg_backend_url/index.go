@@ -2,10 +2,8 @@ package plg_backend_url
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -272,19 +270,7 @@ func request(ctx context.Context, method string, url string, rangeHeader string)
 	if err != nil {
 		return nil, err
 	}
-	return (&http.Client{
-		Timeout: 5 * time.Hour,
-		Transport: NewTransformedTransport(&http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			Dial: (&net.Dialer{
-				Timeout:   10 * time.Second,
-				KeepAlive: 10 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout:   5 * time.Second,
-			IdleConnTimeout:       60 * time.Second,
-			ResponseHeaderTimeout: 60 * time.Second,
-		}),
-	}).Do(r)
+	return HTTPClient(WithInsecure).Do(r)
 }
 
 var extractASPNetList = extract(

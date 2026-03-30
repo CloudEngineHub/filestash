@@ -44,9 +44,6 @@ func (this Filestash) Stat(path string) (os.FileInfo, error) {
 		return nil, err
 	}
 	resp.Close()
-	if h.Get("Content-Length") == "" && h.Get("Last-Modified") == "" && h.Get("Content-Type") != "inode/directory" {
-		return nil, ErrNotFound
-	}
 	f := File{
 		FName: filepath.Base(path),
 		FType: "file",

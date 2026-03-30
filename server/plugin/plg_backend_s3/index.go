@@ -258,7 +258,12 @@ func (this S3Backend) Ls(path string) (files []os.FileInfo, err error) {
 
 func (this S3Backend) Stat(path string) (os.FileInfo, error) {
 	p := this.path(path)
-	if p.path == "" {
+	if p.bucket == "" {
+		return &File{
+			FName: ".",
+			FType: "directory",
+		}, nil
+	} else if p.path == "" {
 		b, err := this.client.ListBuckets(&s3.ListBucketsInput{})
 		if err != nil {
 			return nil, err

@@ -16,8 +16,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/charset"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
 )
@@ -88,7 +90,11 @@ func (this *Url) Ls(path string) ([]os.FileInfo, error) {
 		}
 		return nil, fmt.Errorf("HTTP Error %d", resp.StatusCode)
 	}
-	doc, err := html.Parse(resp.Body)
+	utf8Body, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
+	if err != nil {
+		return nil, err
+	}
+	doc, err := html.Parse(utf8Body)
 	if err != nil {
 		return nil, err
 	}
@@ -188,6 +194,12 @@ func (this Url) processLink(link string, n *html.Node) *File {
 	}
 	if fName == "" || fName == "." || fName == "/" {
 		return nil
+	} else if !utf8.ValidString(fName) {
+		runes := make([]rune, len(fName))
+		for i, b := range []byte(fName) {
+			runes[i] = rune(b)
+		}
+		fName = string(runes)
 	}
 	for _, extr := range []func(node *html.Node) (int64, int64, error){
 		extractNginxList,

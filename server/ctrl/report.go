@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
@@ -61,7 +62,7 @@ func HealthHandler(ctx *App, res http.ResponseWriter, req *http.Request) {
 	))
 	if err == nil {
 		r.Body.Close()
-		if r.StatusCode != http.StatusOK {
+		if !slices.Contains([]int{http.StatusOK, http.StatusNotFound}, r.StatusCode) {
 			res.WriteHeader(http.StatusInternalServerError)
 			res.Write([]byte(fmt.Sprintf(`{"status": "error", "reason": "endpoint_error", "debug": "status=%d"}`, r.StatusCode)))
 			return

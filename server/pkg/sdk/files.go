@@ -28,14 +28,14 @@ func (this Filestash) Ls(path string) ([]os.FileInfo, error) {
 	}
 	files := make([]os.FileInfo, len(out))
 	for i := range files {
-		files[i] = &File{
+		files[i] = File{
 			FName: out[i].Name,
 			FType: out[i].Type,
 			FTime: out[i].Time / 1000,
 			FSize: out[i].Size,
 		}
 	}
-	return files, resp.Close()
+	return files, nil
 }
 
 func (this Filestash) Stat(path string) (os.FileInfo, error) {

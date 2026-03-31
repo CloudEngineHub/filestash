@@ -10,16 +10,7 @@ import (
 )
 
 func (this Filestash) request(method string, url string, body io.Reader) (io.ReadCloser, http.Header, error) {
-	req, err := http.NewRequest(
-		method,
-		fmt.Sprintf("%s://localhost:%d%s", func() string {
-			if Config.Get("general.force_ssl").Bool() {
-				return "https"
-			}
-			return "http"
-		}(), Config.Get("general.port").Int(), WithBase(url)),
-		body,
-	)
+	req, err := http.NewRequest(method, this.URL+url, body)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -66,4 +57,12 @@ func (this Filestash) unmarshalResults(resp io.ReadCloser, data interface{}) err
 		return NewError(fmt.Sprintf("Failed to unmarshal results: %s", err.Error()), 500)
 	}
 	return nil
+}
+
+func localURL() string {
+	scheme := "http"
+	if Config.Get("general.force_ssl").Bool() {
+		scheme = "https"
+	}
+	return WithBase(fmt.Sprintf("%s://localhost:%d", scheme, Config.Get("general.port").Int()))
 }

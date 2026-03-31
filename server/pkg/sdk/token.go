@@ -8,18 +8,18 @@ import (
 	. "github.com/mickael-kerjean/filestash/server/ctrl"
 )
 
-func NewToken(storage string, path string, formData map[string]string) (string, error) {
+func (this *Filestash) NewToken(storage string, path string, formData map[string]string) error {
 	globalMapping := map[string]map[string]interface{}{}
 	if err := json.Unmarshal(
 		[]byte(Config.Get("middleware.attribute_mapping.params").String()),
 		&globalMapping,
 	); err != nil {
-		return "", err
+		return err
 	}
 	mapping, ok := globalMapping[storage]
 	if !ok {
 		Log.Debug("sdk action=NewToken err=unknown_storage")
-		return "", ErrNotValid
+		return ErrNotValid
 	}
 
 	session := formData
@@ -35,7 +35,12 @@ func NewToken(storage string, path string, formData map[string]string) (string, 
 
 	s, err := json.Marshal(session)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return EncryptString(SECRET_KEY_DERIVATE_FOR_USER, string(s))
+	token, err := EncryptString(SECRET_KEY_DERIVATE_FOR_USER, string(s))
+	if err != nil {
+		return err
+	}
+	this.Token = token
+	return nil
 }

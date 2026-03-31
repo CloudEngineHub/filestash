@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	. "github.com/mickael-kerjean/filestash/server/common"
+	. "github.com/mickael-kerjean/filestash/server/ctrl"
 )
 
 func (this Filestash) request(method string, url string, body io.Reader) (io.ReadCloser, http.Header, error) {
@@ -61,7 +62,7 @@ func (this Filestash) unmarshalResults(resp io.ReadCloser, data interface{}) err
 
 func localURL() string {
 	scheme := "http"
-	if Config.Get("general.force_ssl").Bool() {
+	if HasPlugin("plg_starter_https", "plg_starter_httpsfs", "plg_starter_web") {
 		scheme = "https"
 	}
 	return WithBase(fmt.Sprintf("%s://localhost:%d", scheme, Config.Get("general.port").Int()))

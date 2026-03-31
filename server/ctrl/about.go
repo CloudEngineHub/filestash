@@ -15,10 +15,10 @@ import (
 )
 
 var listOfPlugins = struct {
-	oss        []string
-	enterprise []string
-	custom     []string
-	apps       []string
+	OSS        []string
+	Enterprise []string
+	Custom     []string
+	Apps       []string
 }{}
 
 func InitPluginList(code []byte, plgs map[string]model.PluginImpl) error {
@@ -32,19 +32,45 @@ func InitPluginList(code []byte, plgs map[string]model.PluginImpl) error {
 		packageShortName := filepath.Base(packageName)
 
 		if strings.HasPrefix(packageName, "github.com/mickael-kerjean/filestash/server/plugin/") {
-			listOfPlugins.oss = append(listOfPlugins.oss, packageShortName)
+			listOfPlugins.OSS = append(listOfPlugins.OSS, packageShortName)
 		} else if strings.HasPrefix(packageName, "github.com/mickael-kerjean/filestash/filestash-enterprise/plugins/") {
-			listOfPlugins.enterprise = append(listOfPlugins.enterprise, packageShortName)
+			listOfPlugins.Enterprise = append(listOfPlugins.Enterprise, packageShortName)
 		} else if strings.HasPrefix(packageName, "github.com/mickael-kerjean/filestash/filestash-enterprise/customers/") {
-			listOfPlugins.custom = append(listOfPlugins.custom, packageShortName)
+			listOfPlugins.Custom = append(listOfPlugins.Custom, packageShortName)
 		} else {
-			listOfPlugins.custom = append(listOfPlugins.custom, packageShortName)
+			listOfPlugins.Custom = append(listOfPlugins.Custom, packageShortName)
 		}
 	}
 	for name, _ := range plgs {
-		listOfPlugins.apps = append(listOfPlugins.apps, name)
+		listOfPlugins.Apps = append(listOfPlugins.Apps, name)
 	}
 	return nil
+}
+
+func HasPlugin(list ...string) bool {
+	for _, name := range list {
+		for _, p := range listOfPlugins.OSS {
+			if p == name {
+				return true
+			}
+		}
+		for _, p := range listOfPlugins.Enterprise {
+			if p == name {
+				return true
+			}
+		}
+		for _, p := range listOfPlugins.Custom {
+			if p == name {
+				return true
+			}
+		}
+		for _, p := range listOfPlugins.Apps {
+			if p == name {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func AboutHandler(ctx *App, res http.ResponseWriter, req *http.Request) {
@@ -117,10 +143,10 @@ func AboutHandler(ctx *App, res http.ResponseWriter, req *http.Request) {
 		},
 		License: strings.ToUpper(LICENSE),
 		Plugins: []string{
-			strings.Join(listOfPlugins.oss, " "),
-			strings.Join(listOfPlugins.enterprise, " "),
-			strings.Join(listOfPlugins.custom, " "),
-			strings.Join(listOfPlugins.apps, " "),
+			strings.Join(listOfPlugins.OSS, " "),
+			strings.Join(listOfPlugins.Enterprise, " "),
+			strings.Join(listOfPlugins.Custom, " "),
+			strings.Join(listOfPlugins.Apps, " "),
 		},
 	})
 }

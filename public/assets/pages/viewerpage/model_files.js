@@ -26,6 +26,15 @@ export const cat = (url) => ajax({
     rxjs.map(({ response }) => response),
 );
 
+export const stat = (url) => ajax({
+    url: forwardURLParams(url, ["share"]),
+    method: "HEAD",
+}).pipe(rxjs.map(({ responseHeaders }) => ({
+    size: parseInt(responseHeaders["content-length"]),
+    type: responseHeaders["content-type"] === "inode/directory" ? "directory" : "file",
+    time: new Date(responseHeaders["last-modified"]).getTime(),
+})));
+
 export const save = (content) => ajax({
     url: forwardURLParams("api/files/cat?path=" + encodeURIComponent(getCurrentPath()), ["share"]),
     method: "POST",

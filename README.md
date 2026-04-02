@@ -59,9 +59,9 @@ If you want guidance and expert help on your file management problem, [book a ca
 
 # Vision & Philosophy
 
-Our goal is simple: **to build the best file management platform ever made. Period.** But "best" means different things to different people, and making Filestash modular is the only sane model to accomplish that. Anything that isn't a fundamental truth of the universe and might spark a debate belongs in a plugin. Literally every piece listed in the key features is a plugin you can swap for another implementation or remove entirely.
+Our goal is simple: **to build the best file management platform ever made. Period.** But "best" means different things to different people, so we made everything pluggable. The core defines interfaces, plugins implement them. Disagree with our implementation? Write your own. Anything that isn't a fundamental truth of the universe and might spark a debate belongs in a plugin. Literally every piece listed in the key features is a plugin you can swap for another implementation or remove entirely.
 
-This modularity is made possible by the magic of programming interfaces. For example, if you want a [Dropbox-like frontend for FTP](https://news.ycombinator.com/item?id=9224), you will find out the [FTP plugin](https://github.com/mickael-kerjean/filestash/tree/master/server/plugin/plg_backend_ftp) simply implements this interface:
+Say you want to give your users a Dropbox like experience on top of your existing FTP server (remember the [FTP guy during the Dropbox launch on HN](https://news.ycombinator.com/item?id=9224)?). All the [FTP plugin](https://github.com/mickael-kerjean/filestash/tree/master/server/plugin/plg_backend_ftp) does is implement this interface:
 ```go
 type IBackend interface {
 	Ls(path string) ([]os.FileInfo, error)           // list files in a folder

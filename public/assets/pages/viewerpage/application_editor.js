@@ -7,7 +7,6 @@ import { load as loadPlugin } from "../../model/plugin.js";
 import { createLoader } from "../../components/loader.js";
 import { createModal, MODAL_RIGHT_BUTTON } from "../../components/modal.js";
 import { loadCSS, loadJS } from "../../helpers/loader.js";
-import ajax from "../../lib/ajax.js";
 import { extname } from "../../lib/path.js";
 import t from "../../locales/index.js";
 

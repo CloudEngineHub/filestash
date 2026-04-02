@@ -49,7 +49,6 @@ export default async function(render, { acl$, getFilename, getDownloadUrl, mime 
         rxjs.race(
             cat(getDownloadUrl()),
             stat(getDownloadUrl()).pipe(
-                rxjs.tap((a) => console.log(a)),
                 rxjs.mergeMap(({ size }) => {
                     if (size > MAX_EDIT_SIZE) return rxjs.of(null); // abort on file too large
                     return rxjs.timer(TIME_BEFORE_ABORT_EDIT); // abort if it takes too long

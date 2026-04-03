@@ -27,9 +27,10 @@ func init() {
 }
 
 type Url struct {
-	root url.URL
-	home string
-	ctx  context.Context
+	root   url.URL
+	home   string
+	ctx    context.Context
+	client *http.Client
 }
 
 func (this Url) Meta(path string) Metadata {
@@ -50,7 +51,16 @@ func (this Url) Init(params map[string]string, app *App) (IBackend, error) {
 	}
 	home := u.Path
 	u.Path = "/"
-	return &Url{*u, home, app.Context}, nil
+	opts := []HTTPClientOption{}
+	if params["insecure"] == "on" {
+		opts = append(opts, WithInsecure)
+	}
+	return &Url{
+		root:   *u,
+		home:   home,
+		ctx:    app.Context,
+		client: HTTPClient(opts...),
+	}, nil
 }
 
 func (this *Url) LoginForm() Form {
@@ -66,6 +76,12 @@ func (this *Url) LoginForm() Form {
 				Type:        "text",
 				Placeholder: "base URL",
 			},
+			{
+				Name:        "insecure",
+				Type:        "enable",
+				Placeholder: "Insecure",
+				Default:     false,
+			},
 		},
 	}
 }
@@ -75,7 +91,7 @@ func (this *Url) Ls(path string) ([]os.FileInfo, error) {
 	if strings.HasSuffix(this.root.Path, "/") == false {
 		this.root.Path += "/"
 	}
-	resp, err := request(this.ctx, http.MethodGet, this.root.String(), "")
+	resp, err := this.request(http.MethodGet, this.root.String(), "")
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +150,7 @@ func (this *Url) Ls(path string) ([]os.FileInfo, error) {
 
 func (this *Url) Stat(path string) (os.FileInfo, error) {
 	this.root.Path = path
-	resp, err := request(this.ctx, http.MethodHead, this.root.String(), "")
+	resp, err := this.request(http.MethodHead, this.root.String(), "")
 	if err != nil {
 		return nil, err
 	}
@@ -262,15 +278,15 @@ func extract(reg *regexp.Regexp, layout string, toText func(n *html.Node) string
 	}
 }
 
-func request(ctx context.Context, method string, url string, rangeHeader string) (*http.Response, error) {
-	r, err := http.NewRequestWithContext(ctx, method, url, nil)
+func (this *Url) request(method string, url string, rangeHeader string) (*http.Response, error) {
+	r, err := http.NewRequestWithContext(this.ctx, method, url, nil)
 	if rangeHeader != "" {
 		r.Header.Set("Range", rangeHeader)
 	}
 	if err != nil {
 		return nil, err
 	}
-	return HTTPClient(WithInsecure).Do(r)
+	return this.client.Do(r)
 }
 
 var extractASPNetList = extract(
@@ -359,7 +375,7 @@ func (this *Url) Cat(path string) (io.ReadCloser, error) {
 	u.Path = filepath.Join(u.Path, path)
 	url := u.String()
 
-	resp, err := request(this.ctx, http.MethodHead, url, "")
+	resp, err := this.request(http.MethodHead, url, "")
 	if err != nil {
 		return nil, err
 	}
@@ -375,6 +391,7 @@ func (this *Url) Cat(path string) (io.ReadCloser, error) {
 		offset:        0,
 		url:           url,
 		ctx:           this.ctx,
+		client:        this.client,
 		contentLength: r,
 		reader:        nil,
 	}, nil
@@ -384,9 +401,21 @@ type urlFilecat struct {
 	offset        int64
 	url           string
 	ctx           context.Context
+	client        *http.Client
 	contentLength int64
 	reader        io.ReadCloser
 	mu            sync.Mutex
+}
+
+func (this *urlFilecat) request(method string, url string, rangeHeader string) (*http.Response, error) {
+	r, err := http.NewRequestWithContext(this.ctx, method, url, nil)
+	if rangeHeader != "" {
+		r.Header.Set("Range", rangeHeader)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return this.client.Do(r)
 }
 
 func (this *urlFilecat) Read(p []byte) (n int, err error) {
@@ -399,7 +428,7 @@ func (this *urlFilecat) Read(p []byte) (n int, err error) {
 			rangeHeader = fmt.Sprintf("bytes=%d-%d", this.offset, this.contentLength-1)
 			statusOK = http.StatusPartialContent
 		}
-		resp, err := request(this.ctx, http.MethodGet, this.url, rangeHeader)
+		resp, err := this.request(http.MethodGet, this.url, rangeHeader)
 		if err != nil {
 			return 0, err
 		}
